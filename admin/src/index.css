@@ -1,0 +1,59 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-bg: #25388c;
+  --secondary-bg: #606165;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "IBM Plex Sans", sans-serif;
+}
+
+body {
+  @apply tracking-tight;
+}
+
+.primary-text {
+  @apply text-[#25388C];
+}
+
+.secondary-text {
+  @apply text-gray-500;
+}
+
+.primary-bg {
+  @apply bg-[#25388C];
+}
+
+.section-heading {
+  @apply text-xl font-semibold;
+}
+
+.button {
+  @apply text-white primary-bg focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-base w-full px-5 h-[56px] flex items-center justify-center text-center disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+/* loader */
+.loader {
+  width: 25px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(farthest-side, #dbd9d5 94%, #0000) top/4px 4px
+      no-repeat,
+    conic-gradient(#0000 30%, #dbd9d5);
+  -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 4px), #000 0);
+  animation: l13 1s infinite linear;
+}
+
+@keyframes l13 {
+  100% {
+    transform: rotate(1turn);
+  }
+}

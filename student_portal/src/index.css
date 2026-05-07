@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  font-family: "IBM Plex Sans", sans-serif;
+}
+
+body {
+  width: 100%;
+  background-image: url("/book-details-bg.png");
+  background-color: #090c15;
+  color: white;
+}
+
+.secondary-text {
+  @apply text-[#D6E0FF];
+}
+
+.orangeBg {
+  @apply bg-[#E7C9A5];
+}
+
+.orangeText {
+  @apply text-[#E7C9A5];
+}
+
+.padding-x {
+  @apply px-4 md:px-[9%];
+}
