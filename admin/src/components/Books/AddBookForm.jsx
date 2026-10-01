@@ -21,7 +21,7 @@ const AddBookForm = () => {
       genre: "",
       bookCount: "",
       bookCoverImage: "",
-      bookImages: [],
+      // bookImages: [],
       bookSummary: "",
     },
     validationSchema: addBookFormValidationSchema,
@@ -36,9 +36,9 @@ const AddBookForm = () => {
         formData.append("bookSummary", values.bookSummary);
         formData.append("bookCoverImage", values.bookCoverImage[0]);
 
-        values.bookImages.forEach((file) => {
-          formData.append("bookImages", file);
-        });
+        // values.bookImages.forEach((file) => {
+        //   formData.append("bookImages", file);
+        // });
 
         const res = await addBook(formData).unwrap();
         // console.log("response >>> ", res);
@@ -126,20 +126,19 @@ const AddBookForm = () => {
           />
         </div>
 
-        <div className="w-full">
-          {/* Image Upload */}
+        {/* Image Upload */}
+        {/* <div className="w-full">
           <ImageUpload
             label="Book Image (Optional)"
             onChange={(files) => formik.setFieldValue("bookImages", files)}
             error={formik.touched.bookImages && formik.errors.bookImages}
           />
 
-          {/* Uploaded Image Preview List */}
           <UploadedImageList
             images={formik.values.bookImages}
             onRemove={removeImage}
           />
-        </div>
+        </div> */}
 
         <SummaryField
           labelTitle="Book Summary"

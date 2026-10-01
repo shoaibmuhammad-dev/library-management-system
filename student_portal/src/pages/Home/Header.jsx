@@ -15,21 +15,6 @@ const Header = ({ books }) => {
 
   const bookDetails = bookFromQuery ? JSON.parse(bookFromQuery) : book;
 
-  const [requestBook, { isLoading, isError }] = useRequestBookMutation();
-
-  const handleBorrowBookRequest = async (bookId) => {
-    try {
-      await requestBook({ bookId }).unwrap();
-      enqueueSnackbar("Request submitted successfully!", {
-        variant: "success",
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsModalOpen(false);
-    }
-  };
-
   return (
     <div className="py-10 md:py-20 padding-x flex flex-col-reverse md:flex-row items-center justify-between gap-y-10">
       <div className="w-full lg:w-[55%] flex flex-col items-start gap-5">
@@ -61,8 +46,6 @@ const Header = ({ books }) => {
           bookDetails={bookDetails}
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
-          isLoading={isLoading}
-          handleBorrowBookRequest={handleBorrowBookRequest}
         />
       </div>
 

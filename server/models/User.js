@@ -66,6 +66,12 @@ const userSchema = new mongoose.Schema(
       },
     ],
     profilePicture: { type: String, required: false, default: null },
+
+    resetOtp: { type: String, default: null },
+    resetOtpExpiresAt: { type: Date, default: null },
+
+    resetToken: { type: String, default: null },
+    resetTokenExpiresAt: { type: String, default: null },
   },
   {
     timestamps: true,

@@ -9,7 +9,6 @@ import PageLoader from "../Global/PageLoader";
 import { formatDate } from "../../utils/formatDate";
 import ErrorPage from "../Global/ErrorPage";
 import { enqueueSnackbar } from "notistack";
-import RequestLoader from "../Global/RequestLoader";
 import { useState } from "react";
 import DeleteBookModal from "./DeleteBookModal";
 import Pagination from "../../components/Global/Pagination";
@@ -46,8 +45,6 @@ const BooksList = () => {
   };
 
   if (error) return <ErrorPage />;
-
-  // if (isDeleting) return <RequestLoader />;
 
   return (
     <div className="w-full bg-white rounded-xl p-6 min-h-screen">

@@ -27,9 +27,9 @@ export const addBookFormValidationSchema = Yup.object({
     .min(1, "Please upload a cover image.")
     .max(1, "You can add only 1 cover image."),
   bookImages: Yup.array()
-    .min(1, "Upload at least one image.")
-    .max(5, "You can upload upto 5 images.")
-    .required("Book image is required."),
+    // .min(1, "Upload at least one image.")
+    .max(5, "You can upload upto 5 images."),
+  // .required("Book image is required."),
   bookSummary: Yup.string()
     .min(30, "Book summary must be at least 30 characters.")
     .max(2000, "Book summary must be less than 2000 characters.")

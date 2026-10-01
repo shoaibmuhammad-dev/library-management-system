@@ -50,7 +50,7 @@ const SearchResultList = () => {
       ) : (
         <>
           {!books?.length ? (
-            <main className="w-full min-h-screen flex flex-col items-center justify-center gap-4 px-4">
+            <main className="w-full py-20 flex flex-col items-center justify-center gap-4 px-4">
               <img
                 src="/no-books-placeholder.png"
                 alt="no-books-placeholder"

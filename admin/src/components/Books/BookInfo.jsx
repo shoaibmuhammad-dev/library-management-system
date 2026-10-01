@@ -6,11 +6,11 @@ import { Link } from "react-router-dom";
 const BookInfo = ({ book }) => {
   return (
     <div className="w-full mt-5 flex items-start gap-5 bg-white p-5 rounded-xl">
-      <div className="w-[240px] h-[230px] rounded-xl bg-gray-50 flex items-center justify-center">
+      <div className="w-[240px] max-h-[230px] rounded-xl bg-white flex items-center justify-center">
         <img
           src={book?.bookCoverImage}
           alt="book"
-          className="w-[125px] h-[174px] object-cover rounded-lg"
+          className="w-full h-auto object-contain rounded-lg"
         />
       </div>
 
@@ -26,7 +26,9 @@ const BookInfo = ({ book }) => {
         </div>
         <h3 className="text-[24px] font-semibold">{book?.bookTitle}</h3>
         <h4 className="text-lg font-semibold">By {book?.author}</h4>
-        <p className="secondary-text text-sm lg:text-base">{book?.genre}</p>
+        <p className="text-neutral-600 text-sm lg:text-base">
+          <span className="text-black font-medium">Genre: </span> {book?.genre}
+        </p>
 
         <Link
           to={`/books/edit/${book?._id}`}

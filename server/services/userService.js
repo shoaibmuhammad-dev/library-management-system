@@ -1,6 +1,6 @@
 const User = require("../models/User");
-const BorrowRequests = require("../models/borrowRequests");
 const cloudinary = require("../utils/cloudinary");
+const ApiError = require("../utils/errorHandler");
 
 const getProfile = async (userId) => {
   const user = await User.findById(userId).select("-password");
@@ -66,11 +66,24 @@ const updateUserRole = async (userId, role) => {
 };
 
 const approveUserProfile = async (userId, status) => {
+  if (!userId) {
+    throw new ApiError("User ID is required", 400);
+  }
+
+  if (!status) {
+    throw new ApiError("Status is required", 400);
+  }
+
   const user = await User.findByIdAndUpdate(
     userId,
-    { status },
-    { new: true },
+    { $set: { status } },
+    { new: true, runValidators: true },
   ).select("-password");
+
+  if (!user) {
+    throw new ApiError("User not found", 404);
+  }
+
   return user;
 };
 

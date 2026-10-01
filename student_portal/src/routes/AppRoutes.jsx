@@ -9,6 +9,9 @@ import SearchPage from "../pages/Search/SearchPage";
 import ProfilePage from "../pages/Profile/ProfilePage";
 import RegistrationForm from "../components/auth/RegistrationForm";
 import RequestsPage from "../pages/Requests/RequestsPage";
+import ForgotPasswordForm from "../components/auth/ForgotPasswordForm";
+import OtpVerificationForm from "../components/auth/OtpVerificationForm";
+import ResetPasswordForm from "../components/auth/ResetPasswordPage";
 
 const AppRoutes = () => {
   return (
@@ -20,6 +23,42 @@ const AppRoutes = () => {
           <PublicRoutes>
             <AuthLayout>
               <LoginForm />
+            </AuthLayout>
+          </PublicRoutes>
+        }
+      />
+
+      {/* forgot password page */}
+      <Route
+        path="/forgot-password"
+        element={
+          <PublicRoutes>
+            <AuthLayout>
+              <ForgotPasswordForm />
+            </AuthLayout>
+          </PublicRoutes>
+        }
+      />
+
+      {/* verify OTP + email page */}
+      <Route
+        path="/verify-email"
+        element={
+          <PublicRoutes>
+            <AuthLayout>
+              <OtpVerificationForm />
+            </AuthLayout>
+          </PublicRoutes>
+        }
+      />
+
+      {/* reset pasword page */}
+      <Route
+        path="/reset-password"
+        element={
+          <PublicRoutes>
+            <AuthLayout>
+              <ResetPasswordForm />
             </AuthLayout>
           </PublicRoutes>
         }

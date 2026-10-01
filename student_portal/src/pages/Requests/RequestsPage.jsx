@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import RequestsTable from "./RequestsTable";
 import { useGetRequestsQuery } from "../../services/requestApi";
 import PageLoader from "../../components/common/PageLoader";
@@ -24,7 +24,6 @@ const RequestsPage = () => {
   );
 
   if (isError) return;
-  // if (isLoading || isFetching) return <PageLoader />;
 
   const handleChangeStatus = (status) => {
     setStatus(status);

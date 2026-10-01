@@ -1,5 +1,9 @@
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
+const ApiError = require("../utils/errorHandler");
+const sendEmail = require("../utils/email");
+const generateOtp = require("../utils/generateOtp");
+const crypto = require("crypto");
 
 const register = async ({
   firstName,
@@ -15,8 +19,9 @@ const register = async ({
 }) => {
   const existingUser = await User.findOne({ email });
   if (existingUser)
-    throw new Error(
+    throw new ApiError(
       `An account with '${existingUser.email}' email already exists`,
+      400,
     );
 
   if (role === "admin") {
@@ -34,7 +39,7 @@ const register = async ({
     isApproved = "pending";
 
     const existingId = await User.findOne({ idNumber });
-    if (existingId) throw new Error("ID is already registered!");
+    if (existingId) throw new ApiError("ID is already registered!", 400);
   }
 
   const user = await User.create({
@@ -70,10 +75,15 @@ const register = async ({
   };
 };
 
-const login = async ({ email, password }) => {
+const login = async ({ email, password, role }) => {
   const user = await User.findOne({ email });
+
+  if (role !== user.role) {
+    throw new ApiError("Invalid email or password.", 400);
+  }
+
   if (!user || !(await user.matchPassword(password))) {
-    throw new Error("Invalid email or password.");
+    throw new ApiError("Invalid email or password.", 400);
   }
 
   return {
@@ -93,7 +103,92 @@ const login = async ({ email, password }) => {
   };
 };
 
+const forgotPassword = async (data) => {
+  const { email } = data;
+
+  if (!email) {
+    throw new ApiError("Email is required", 400);
+  }
+
+  const user = await User.findOne({ email });
+
+  if (user) {
+    const otp = generateOtp();
+    user.resetOtp = otp;
+    user.resetOtpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await user.save();
+
+    await sendEmail(
+      email,
+      "Password Reset Verification Code",
+      `
+        <h2>Password Reset</h2>
+        <p>Your verification code is:</p>
+        <h1>${otp}</h1>
+        <p>This code will expire in 10 minutes.</p>
+      `,
+    );
+  }
+
+  return {
+    success: true,
+    message:
+      "If an account exists with this email, we have sent a verification code.",
+  };
+};
+
+const verifyOtp = async (data) => {
+  const { email, otp } = data;
+
+  if (!email || !otp) {
+    throw new ApiError("Email and OTP is required", 400);
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError("Invalid verification code!", 400);
+  }
+
+  if (!user.resetOtp || !user.resetOtpExpiresAt) {
+    throw new ApiError("Verification code is invalid or expired!", 400);
+  }
+
+  if (new Date() > user.resetOtpExpiresAt) {
+    user.resetOtp = null;
+    user.resetOtpExpiresAt = null;
+    await user.save();
+
+    throw new ApiError("Verification code has expired!", 400);
+  }
+
+  if (user.resetOtp !== otp) {
+    throw new ApiError("Invalid verification code", 400);
+  }
+
+  user.resetOtp = null;
+  user.resetOtpExpiresAt = null;
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  user.resetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  user.resetTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+  await user.save();
+
+  return {
+    success: true,
+    message: "OTP has been verified successfully",
+    resetToken,
+  };
+};
+
 module.exports = {
   register,
   login,
+  forgotPassword,
+  verifyOtp,
 };

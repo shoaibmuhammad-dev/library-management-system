@@ -39,6 +39,10 @@ const ListCard = ({ request }) => {
                 {shortDate(request?.createdAt)}
               </p>
             </div>
+            <span className="text-[10px] font-medium bg-orange-400 text-white px-2 py-1 rounded-full">
+              {request?.status.slice(0, 1).toUpperCase() +
+                request?.status.slice(1)}
+            </span>
           </div>
         </div>
       </div>

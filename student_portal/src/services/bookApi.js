@@ -22,9 +22,10 @@ export const bookApi = createApi({
 
     // request borrow book
     requestBook: builder.mutation({
-      query: ({ bookId }) => ({
+      query: ({ bookId, payload }) => ({
         url: `/requests/${bookId}`,
         method: "POST",
+        body: payload,
       }),
       invalidatesTags: ["Books"],
     }),

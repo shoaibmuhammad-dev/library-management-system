@@ -20,7 +20,7 @@ const RequestsTable = ({ requests }) => {
           {requests?.map((req) => {
             const status = getStatusStyles(req.status);
             return (
-              <tr key={req._id} className="" onClick={() => handleCopyText()}>
+              <tr key={req._id} className="">
                 <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-200">
                   <div className="inline-flex items-center gap-2">
                     <img

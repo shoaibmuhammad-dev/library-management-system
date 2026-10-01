@@ -12,6 +12,7 @@ const borrowRequests = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    startDate: { type: Date, default: null },
     returnDate: { type: Date, default: null },
     status: {
       type: String,

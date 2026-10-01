@@ -15,13 +15,13 @@ const LoginForm = () => {
 
   const togglePassword = () => {
     setShowPass((prev) => !prev);
-    console.log(showPass);
   };
 
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
+      role: "student",
     },
     validationSchema: Yup.object({
       password: Yup.string()
@@ -107,7 +107,10 @@ const LoginForm = () => {
       </div>
 
       <div className="w-full flex justify-end">
-        <Link to={`/login`} className="secondary-text text-sm font-medium">
+        <Link
+          to={`/forgot-password`}
+          className="secondary-text text-sm font-medium"
+        >
           Forgot Password?
         </Link>
       </div>

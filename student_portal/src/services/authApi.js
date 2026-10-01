@@ -24,6 +24,34 @@ export const authApi = createApi({
       invalidatesTags: ["User"],
     }),
 
+    forgotPassword: builder.mutation({
+      query: (data) => ({
+        url: "/auth/forgot-password",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    verifyOtp: builder.mutation({
+      query: (data) => ({
+        url: "/auth/verify-otp",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    // reset password mutation
+    resetPassword: builder.mutation({
+      query: (data) => ({
+        url: "/auth/reset-password",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
     getProfile: builder.query({
       query: () => ({
         url: "/users/profile",
@@ -31,7 +59,7 @@ export const authApi = createApi({
       providesTags: ["User"], // ✅ cache
     }),
 
-    // ✅ NEW MUTATION
+    // NEW MUTATION
     updateProfile: builder.mutation({
       query: (formData) => ({
         url: "/users/edit-profile",
@@ -48,6 +76,9 @@ export const authApi = createApi({
 export const {
   useSignupMutation,
   useLoginMutation,
+  useForgotPasswordMutation,
+  useVerifyOtpMutation,
+  useResetPasswordMutation,
   useGetProfileQuery,
-  useUpdateProfileMutation, // ✅ export
+  useUpdateProfileMutation,
 } = authApi;

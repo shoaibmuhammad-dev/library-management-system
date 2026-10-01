@@ -86,9 +86,9 @@ const Sidebar = () => {
         <div className="w-[90%] border rounded-full p-2 flex items-center justify-between absolute bottom-6 left-1/2 -translate-x-1/2">
           <div className="flex items-center gap-1">
             <img
-              src="/profile-02.png"
-              alt="profile"
-              className="w-[44px] h-[44px] block rounded-full object-cover"
+              src="/user-profile-picture-placeholder.png"
+              alt="bookwise library admin profile picture"
+              className="w-[38px] h-[38px] block rounded-full object-cover"
             />
             <div className="flex flex-col items-start gap-[-4px]">
               <p className="font-medium text-sm">{user?.user?.name}</p>

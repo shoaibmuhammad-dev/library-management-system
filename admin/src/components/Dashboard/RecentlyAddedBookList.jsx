@@ -69,6 +69,7 @@ const RecentlyAddedBookList = () => {
         <div className="w-full mt-5 flex flex-col items-start min-h-[60vh]">
           {data &&
             data?.data?.books?.map((book, i) => {
+              console.log(book);
               return (
                 <div
                   key={i}
@@ -76,14 +77,17 @@ const RecentlyAddedBookList = () => {
                 >
                   <div className="flex items-center gap-3">
                     <img
-                      src={book?.bookImages[0]}
+                      src={book?.bookCoverImage}
                       alt="inside-evil-book"
-                      className="w-[55px] h-[76px] rounded-md"
+                      className="w-[55px] max-h-[76px] object-contain rounded-md"
                     />
-                    <div className="flex flex-col items-start gap-1.5">
+                    <div className="flex flex-col items-start gap-1">
                       <Link to={`/books/${book?._id}`}>
-                        <h3 className="font-semibold">{book?.bookTitle}</h3>
+                        <h3 className="font-semibold leading-none">
+                          {book?.bookTitle}
+                        </h3>
                       </Link>
+
                       <div className="flex items-center gap-2">
                         <p className="text-sm secondary-text">
                           By {book?.author}
@@ -95,8 +99,8 @@ const RecentlyAddedBookList = () => {
 
                       <div className="w-full flex items-center gap-5">
                         <div className="flex items-center gap-1">
-                          <IoCalendarOutline className="secondary-text text-[16px]" />
-                          <p className="text-sm secondary-text">
+                          <IoCalendarOutline className="secondary-text text-[14px]" />
+                          <p className="text-[13px] secondary-text">
                             {formatDate(book?.createdAt)}
                           </p>
                         </div>

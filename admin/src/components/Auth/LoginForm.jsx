@@ -45,7 +45,7 @@ const LoginForm = () => {
         const response = await login({
           email: values.email,
           password: values.password,
-          user_type: "admin",
+          role: "admin",
         }).unwrap();
 
         if (response?.success) {
@@ -59,7 +59,7 @@ const LoginForm = () => {
         setErrorMessage(
           error?.data?.message ||
             error?.response?.data?.message ||
-            error?.message
+            error?.message,
         );
       }
     },

@@ -1,4 +1,5 @@
 const BorrowRequests = require("../models/borrowRequests");
+const ApiError = require("../utils/errorHandler");
 
 // submit a request to borrow a book
 const requestBorrowBook = async (userId, bookId) => {
@@ -9,11 +10,10 @@ const requestBorrowBook = async (userId, bookId) => {
   });
 
   if (existingRequest) {
-    const error = new Error(
+    throw new ApiError(
       "You already have a pending or borrowed request for this book.",
+      409,
     );
-    error.statusCode = 409;
-    throw error;
   }
 
   const borrowRequest = await BorrowRequests.create({
@@ -21,6 +21,7 @@ const requestBorrowBook = async (userId, bookId) => {
     book: bookId,
     status: "pending",
     borrowedDate: null,
+    startDate: null,
     returnDate: null,
   });
 
@@ -31,9 +32,7 @@ const requestBorrowBook = async (userId, bookId) => {
 const updateRequestStatus = async (requestId, status) => {
   const request = await BorrowRequests.findById(requestId);
   if (!request) {
-    const error = new Error("Request not found!");
-    error.statusCode = 404;
-    throw error;
+    throw new ApiError("Request not found!", 404);
   }
 
   const currentDate = new Date();
@@ -233,16 +232,12 @@ const cancelBorrowRequest = async (requestId, userId) => {
   });
 
   if (!request) {
-    const error = new Error("Borrow request not found!");
-    error.statusCode = 404;
-    throw error;
+    throw new Error("Borrow request not found!", 404);
   }
 
   // Student can only cancel pending requests
   if (request.status !== "pending") {
-    const error = new Error(`You cannot cancel a ${request.status} request.`);
-    error.statusCode = 400;
-    throw error;
+    throw new Error(`You cannot cancel a ${request.status} request.`, 400);
   }
 
   request.status = "cancelled";

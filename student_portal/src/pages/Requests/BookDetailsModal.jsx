@@ -41,7 +41,7 @@ const BookDetailsModal = ({ requestId }) => {
       >
         <div className="text-white flex flex-col items-center gap-4 text-center">
           <div className="w-20 h-20 rounded-full flex items-center justify-center bg-[#090c15]">
-            <GiCancel size={34} className="text-red-400" />
+            <GiCancel size={34} className="text-red-300" />
           </div>
 
           <h3 className="text-xl font-semibold">Cancel Request</h3>
@@ -53,6 +53,7 @@ const BookDetailsModal = ({ requestId }) => {
           <div className="mt-1 flex justify-center gap-4">
             <button
               type="button"
+              onClick={() => setIsModalOpen(false)}
               className="bg-gray-500 rounded-md px-7 py-2 font-semibold text-black text-sm lg:text-base"
             >
               No

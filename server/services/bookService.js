@@ -1,5 +1,6 @@
 const Book = require("../models/Book");
 const cloudinary = require("../utils/cloudinary");
+const ApiError = require("../utils/errorHandler");
 
 const createBook = async ({
   bookTitle,
@@ -14,11 +15,11 @@ const createBook = async ({
   const existingBook = await Book.findOne({ bookTitle });
 
   if (existingBook)
-    throw new Error(`Book already exists with title ${bookTitle}`);
+    throw new ApiError(`Book already exists with title ${bookTitle}`, 400);
 
   // Upload COVER IMAGE (single file)
   if (!bookCoverImage) {
-    throw new Error("Book cover image is required");
+    throw new ApiError("Book cover image is required", 400);
   }
 
   const uploadCoverImage = await cloudinary.uploader.upload(
@@ -30,17 +31,17 @@ const createBook = async ({
     },
   );
 
-  const uploadBookImages = await Promise.all(
-    bookImages.map(async (img) => {
-      const res = await cloudinary.uploader.upload(
-        `data:${img.mimetype};base64,${img.buffer.toString("base64")}`,
-        {
-          folder: "book_images",
-        },
-      );
-      return res.secure_url;
-    }),
-  );
+  // const uploadBookImages = await Promise.all(
+  //   bookImages.map(async (img) => {
+  //     const res = await cloudinary.uploader.upload(
+  //       `data:${img.mimetype};base64,${img.buffer.toString("base64")}`,
+  //       {
+  //         folder: "book_images",
+  //       },
+  //     );
+  //     return res.secure_url;
+  //   }),
+  // );
 
   const booksCount = await Book.countDocuments();
   let generateBookId = booksCount + 1;
@@ -61,7 +62,7 @@ const createBook = async ({
     totalBooks,
     availableBooks: totalBooks,
     bookCoverImage: uploadCoverImage.secure_url,
-    bookImages: uploadBookImages,
+    // bookImages: uploadBookImages,
     bookSummary,
     bookPrimaryColor,
   });
@@ -76,7 +77,7 @@ const createBook = async ({
       genre: book.genre,
       totalBooks: book.totalBooks,
       bookCoverImage: book.bookCoverImage,
-      bookImages: book.bookImages,
+      // bookImages: book.bookImages,
       bookSummary: book.bookSummary,
       bookPrimaryColor: book.bookPrimaryColor,
     },
@@ -137,7 +138,7 @@ const editBook = async (bookId, payload) => {
     totalBooks,
     bookSummary,
     bookPrimaryColor,
-    bookImages = [],
+    // bookImages = [],
     bookCoverImage,
     existingBookImages = [],
   } = payload;
@@ -163,20 +164,20 @@ const editBook = async (bookId, payload) => {
   // Upload NEW images
   let uploadedImages = [];
 
-  if (bookImages.length > 0) {
-    uploadedImages = await Promise.all(
-      bookImages.map(async (img) => {
-        const res = await cloudinary.uploader.upload(
-          `data:${img.mimetype};base64,${img.buffer.toString("base64")}`,
-          { folder: "book_images" },
-        );
-        return res.secure_url;
-      }),
-    );
-  }
+  // if (bookImages.length > 0) {
+  //   uploadedImages = await Promise.all(
+  //     bookImages.map(async (img) => {
+  //       const res = await cloudinary.uploader.upload(
+  //         `data:${img.mimetype};base64,${img.buffer.toString("base64")}`,
+  //         { folder: "book_images" },
+  //       );
+  //       return res.secure_url;
+  //     }),
+  //   );
+  // }
 
   // FINAL IMAGE SET
-  book.bookImages = [...existingBookImages, ...uploadedImages];
+  // book.bookImages = [...existingBookImages, ...uploadedImages];
 
   await book.save();
 
