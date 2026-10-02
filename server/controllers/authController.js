@@ -21,6 +21,11 @@ exports.verifyOtp = asyncHandler(async (req, res) => {
   return res.status(200).json(data);
 });
 
+exports.resetPassword = asyncHandler(async (req, res) => {
+  const data = await authService.resetPassword(req.body);
+  return res.status(200).json(data);
+});
+
 exports.getUserProfile = asyncHandler(async (req, res) => {
   const user = await authService.getProfile(req.user.id);
   return res.status(200).json(user);

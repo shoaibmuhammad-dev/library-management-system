@@ -1,4 +1,3 @@
-import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { CiHome } from "react-icons/ci";
 import { LuUsersRound } from "react-icons/lu";
@@ -7,6 +6,8 @@ import { FaPushed } from "react-icons/fa6";
 import { LuUserRound } from "react-icons/lu";
 import { useSelector } from "react-redux";
 import Cookies from "js-cookie";
+import LogoutModal from "./LogoutModal";
+import { useState } from "react";
 
 const links = [
   {
@@ -40,12 +41,14 @@ const Sidebar = () => {
   const path = useLocation();
   const user = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const [openLogoutModal, setOpenLogoutModal] = useState(false);
 
   const handleLogout = () => {
     Cookies.remove("adminData");
     Cookies.remove("adminToken");
     navigate("/login");
   };
+
   return (
     <div className="py-4 w-full h-full px-5 flex flex-col items-start gap-8 relative">
       <div className="w-full flex items-center gap-1">
@@ -58,7 +61,9 @@ const Sidebar = () => {
           <strong>BookWise</strong>
         </span>
       </div>
+
       <div className="w-full border border-dashed" />
+
       <ul className="w-full">
         {links?.map((link, index) => {
           return (
@@ -95,7 +100,10 @@ const Sidebar = () => {
               <p className="text-xs secondary-text">{user?.user?.email}</p>
             </div>
           </div>
-          <button type="button" onClick={() => handleLogout()}>
+          <button
+            type="button"
+            onClick={() => setOpenLogoutModal((prev) => !prev)}
+          >
             <img
               src="/logout-icon.png"
               alt="logout icon"
@@ -104,6 +112,13 @@ const Sidebar = () => {
           </button>
         </div>
       )}
+
+      <LogoutModal
+        isOpen={openLogoutModal}
+        onclick={handleLogout}
+        onclose={() => setOpenLogoutModal((prev) => !prev)}
+        isLoading={false}
+      />
     </div>
   );
 };

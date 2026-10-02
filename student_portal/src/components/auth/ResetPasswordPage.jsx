@@ -7,8 +7,9 @@ import { enqueueSnackbar } from "notistack";
 import { useResetPasswordMutation } from "../../services/authApi";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { BiCheck, BiX } from "react-icons/bi";
+import Cookies from "js-cookie";
 
-const ResetPasswordForm = ({ email, resetToken }) => {
+const ResetPasswordForm = () => {
   const navigate = useNavigate();
 
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
@@ -65,34 +66,23 @@ const ResetPasswordForm = ({ email, resetToken }) => {
 
     onSubmit: async (values, { resetForm }) => {
       try {
-        if (!email) {
-          enqueueSnackbar(
-            "Your password reset session has expired. Please start again.",
-            {
-              variant: "error",
-            },
-          );
+        const resetToken = Cookies.get("resetToken");
+        const email = Cookies.get("verification-email");
 
-          navigate("/forgot-password");
+        if (!resetToken) {
+          enqueueSnackbar("Reset token is required", { variant: "error" });
           return;
         }
 
-        if (!resetToken) {
-          enqueueSnackbar(
-            "Invalid or expired password reset session. Please request a new code.",
-            {
-              variant: "error",
-            },
-          );
-
-          navigate("/forgot-password");
+        if (!email) {
+          enqueueSnackbar("Email is required", { variant: "error" });
           return;
         }
 
         const res = await resetPassword({
           email,
           resetToken,
-          password: values.password,
+          newPassword: values.password,
         }).unwrap();
 
         if (res?.success) {
@@ -103,8 +93,10 @@ const ResetPasswordForm = ({ email, resetToken }) => {
             },
           );
 
-          resetForm();
+          Cookies.remove("resetToken");
+          Cookies.remove("verification-email");
 
+          resetForm();
           navigate("/login");
         }
       } catch (error) {
@@ -114,7 +106,6 @@ const ResetPasswordForm = ({ email, resetToken }) => {
   });
 
   const password = formik.values.password;
-
   const isPasswordStrong = passwordRules.every((rule) => rule.test(password));
 
   return (

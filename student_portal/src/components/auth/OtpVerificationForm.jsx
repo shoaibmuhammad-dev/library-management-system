@@ -6,6 +6,7 @@ import Button from "../common/Button";
 import { enqueueSnackbar } from "notistack";
 import { useVerifyOtpMutation } from "../../services/authApi";
 import Cookies from "js-cookie";
+import ResendOtp from "./ResendOtp";
 
 const OTP_LENGTH = 5;
 
@@ -55,7 +56,7 @@ const OtpVerificationForm = () => {
           });
 
           resetForm();
-
+          Cookies.set("resetToken", res?.resetToken);
           navigate("/reset-password");
         }
       } catch (error) {
@@ -239,18 +240,7 @@ const OtpVerificationForm = () => {
         <Button text={"Verify"} type={"submit"} loading={isLoading} />
       </div>
 
-      <p className="secondary-text font-medium text-center mt-2 mx-auto">
-        Didn't receive the code?{" "}
-        <button
-          type="button"
-          className="orangeText"
-          onClick={() => {
-            // Add resend OTP logic here
-          }}
-        >
-          Resend code
-        </button>
-      </p>
+      <ResendOtp />
 
       <p className="secondary-text font-medium text-center mx-auto">
         Remember your password?{" "}

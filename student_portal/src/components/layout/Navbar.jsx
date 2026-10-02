@@ -4,10 +4,12 @@ import { MdMenu } from "react-icons/md";
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import LogoutModal from "./LogoutModal";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const user = useSelector((state) => state.user.user);
 
   const handleToggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
@@ -49,9 +51,19 @@ const Navbar = () => {
           <li>
             <Link to={"/profile"} className="flex items-center gap-2 text-base">
               <div className="w-8 h-8 rounded-full bg-blue-300 flex items-center justify-center">
-                <span className="font-semibold text-sm">SM</span>
+                {user?.profilePicture ? (
+                  <img
+                    src={user?.profilePicture}
+                    alt={`${user?.firstName} ${user?.lastName} profile picture`}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <span className="font-semibold text-sm">
+                    {`${user?.firstName.slice(0, 1)}${user?.lastName.slice(0, 1)}`}
+                  </span>
+                )}
               </div>
-              <span>Adrian</span>
+              <span>{user ? `${user?.firstName} ${user?.lastName}` : ""}</span>
             </Link>
           </li>
           <li>

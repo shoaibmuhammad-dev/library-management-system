@@ -4,6 +4,8 @@ const ApiError = require("../utils/errorHandler");
 const sendEmail = require("../utils/email");
 const generateOtp = require("../utils/generateOtp");
 const crypto = require("crypto");
+const verificationCodeTemplate = require("../utils/sendForgotPasswordCode");
+const bcrypt = require("bcryptjs");
 
 const register = async ({
   firstName,
@@ -18,6 +20,7 @@ const register = async ({
   department,
 }) => {
   const existingUser = await User.findOne({ email });
+
   if (existingUser)
     throw new ApiError(
       `An account with '${existingUser.email}' email already exists`,
@@ -42,11 +45,13 @@ const register = async ({
     if (existingId) throw new ApiError("ID is already registered!", 400);
   }
 
+  const hashedPassword = await bcrypt.hash(password, 12);
+
   const user = await User.create({
     firstName,
     lastName,
     email,
-    password,
+    password: hashedPassword,
     idNumber,
     role,
     status: isApproved,
@@ -118,17 +123,9 @@ const forgotPassword = async (data) => {
     user.resetOtpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await user.save();
+    const template = verificationCodeTemplate(otp);
 
-    await sendEmail(
-      email,
-      "Password Reset Verification Code",
-      `
-        <h2>Password Reset</h2>
-        <p>Your verification code is:</p>
-        <h1>${otp}</h1>
-        <p>This code will expire in 10 minutes.</p>
-      `,
-    );
+    await sendEmail(email, "Password Reset Verification Code", template);
   }
 
   return {
@@ -186,9 +183,41 @@ const verifyOtp = async (data) => {
   };
 };
 
+const resetPassword = async (data) => {
+  const { resetToken, newPassword } = data;
+
+  if (!resetToken || !newPassword)
+    throw new ApiError("Reset token and new password are required", 400);
+
+  // Hash the token received from the client
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // Find user using the hashed reset token
+  const user = await User.findOne({
+    resetToken: hashedToken,
+    resetTokenExpiresAt: { $gt: new Date() },
+  });
+
+  if (!user) throw new ApiError("Invalid or expired reset token", 400);
+
+  // Hash the new password
+
+  user.password = newPassword;
+  user.resetToken = null;
+  user.resetTokenExpiresAt = null;
+
+  await user.save();
+
+  return { success: true, message: "Password has been reset successfully" };
+};
+
 module.exports = {
   register,
   login,
   forgotPassword,
   verifyOtp,
+  resetPassword,
 };

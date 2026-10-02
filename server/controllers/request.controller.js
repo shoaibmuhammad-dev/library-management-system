@@ -37,23 +37,6 @@ exports.acceptRejectRequestBorrowBook = asyncHandler(async (req, res) => {
   const requestId = req.params.requestId;
   const { status } = req.body;
 
-  if (!requestId) {
-    return res.status(400).json({ message: "Request ID is required" });
-  }
-  if (!status) {
-    return res.status(400).json({ message: "Request status is required" });
-  }
-
-  const allowedStatus = [
-    "pending",
-    "borrowed",
-    "returned",
-    "late-return",
-    "rejected",
-  ];
-  if (!allowedStatus.includes(status)) {
-    return res.status(400).json({ message: "Invalid status" });
-  }
   const updatedRequest = await requestService.updateRequestStatus(
     requestId,
     status,

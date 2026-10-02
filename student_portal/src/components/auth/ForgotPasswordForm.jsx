@@ -25,7 +25,6 @@ const ForgotPasswordForm = () => {
       try {
         const res = await forgotPassword(values).unwrap();
 
-        console.log(res);
         if (res?.success) {
           enqueueSnackbar(
             res?.message ||

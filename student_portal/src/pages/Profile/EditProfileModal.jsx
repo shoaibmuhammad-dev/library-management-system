@@ -8,12 +8,14 @@ import { editProfileSchema } from "../../validationSchema/editProfileSchema";
 import { IoClose } from "react-icons/io5";
 import { useUpdateProfileMutation } from "../../services/authApi";
 import { enqueueSnackbar } from "notistack";
+import { useDispatch } from "react-redux";
 
 const EditProfileModal = ({ toggleModal, data }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
   const [file, setFile] = useState(null);
+  const dispatch = useDispatch();
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -61,7 +63,7 @@ const EditProfileModal = ({ toggleModal, data }) => {
           variant: "success",
         });
 
-        toggleModal(); // close modal
+        toggleModal();
       } catch (err) {
         console.error(err);
       }
