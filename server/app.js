@@ -16,7 +16,12 @@ const requestRoutes = require("./routes/requestRoutes");
 app.use(helmet());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://library-management-student.vercel.app",
+      "https://library-management-admin-dashboard.vercel.app",
+    ],
   }),
 );
 app.use(express.json());

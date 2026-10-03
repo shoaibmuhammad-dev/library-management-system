@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useUpdateRequestStatusMutation } from "../../services/requests/requestApi";
 import { enqueueSnackbar } from "notistack";
 import { getStatusStyle } from "../../utils/getStatusSatyle";
+import PageLoader from "../Global/PageLoader";
+import { createPortal } from "react-dom";
 
 const REQUESTS_STATUS = [
   { title: "Pending", value: "pending" },
@@ -60,38 +62,50 @@ const StatusDropdown = ({ defaultValue, requestId, currentStatus }) => {
     defaultValue.charAt(0).toUpperCase() + defaultValue.slice(1);
 
   return (
-    <div className="relative inline-block text-left">
-      <button
-        onClick={() => handleToggleDropdown()}
-        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
-          defaultValue,
-        )}`}
-      >
-        {formattedStatus === "Borrowed" ? "Accepted" : formattedStatus}
-      </button>
-
-      {open && (
-        <div
-          ref={dropdownRef}
-          className="absolute mt-2 w-32 bg-white border rounded-lg shadow-lg z-50 py-3"
+    <>
+      <div className="relative inline-block text-left">
+        <button
+          onClick={() => handleToggleDropdown()}
+          className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
+            defaultValue,
+          )}`}
         >
-          {REQUESTS_STATUS.map((status) => (
-            <div
-              key={status.value}
-              onClick={() => handleSelect(status.value)}
-              className={`cursor-pointer px-3 py-2 text-xs bg-white`}
-            >
-              <span
-                className={`${getStatusStyle(status?.value)} px-2 py-1 rounded-full font-medium`}
+          {formattedStatus === "Borrowed" ? "Accepted" : formattedStatus}
+        </button>
+
+        {open && (
+          <div
+            ref={dropdownRef}
+            className="absolute mt-2 w-32 bg-white border rounded-lg shadow-lg z-50 py-3"
+          >
+            {REQUESTS_STATUS.map((status) => (
+              <div
+                key={status.value}
+                onClick={() => handleSelect(status.value)}
+                className={`cursor-pointer px-3 py-2 text-xs bg-white`}
               >
-                {status.title}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+                <span
+                  className={`${getStatusStyle(status?.value)} px-2 py-1 rounded-full font-medium`}
+                >
+                  {status.title}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      {isLoading && <Loader />}
+    </>
   );
 };
 
 export default StatusDropdown;
+
+const Loader = () => {
+  return createPortal(
+    <main className="w-full min-h-screen z-50 absolute inset-0 bg-[rgba(0,0,0,0.2)]">
+      <PageLoader />
+    </main>,
+    document.body,
+  );
+};

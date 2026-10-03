@@ -2,7 +2,7 @@ import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import Cookies from "js-cookie";
 import { enqueueSnackbar } from "notistack";
 import { getToken } from "../utils/getToken";
-import { BASE_URL } from "../data/baseUrl";
+import { BASE_URL, PROD_BASE_URL } from "../data/baseUrl";
 
 let isErrorToastActive = false;
 
@@ -18,7 +18,7 @@ const showSingleToast = (message, options = {}) => {
 };
 
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: BASE_URL,
+  baseUrl: PROD_BASE_URL,
   prepareHeaders: (headers) => {
     const token = getToken();
     if (token) headers.set("Authorization", `Bearer ${token}`);
