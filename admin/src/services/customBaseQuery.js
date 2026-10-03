@@ -1,11 +1,11 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import Cookies from "js-cookie";
-import { DEV_BASE_URL } from "../api/api";
+import { DEV_BASE_URL, PROD_BASE_URL } from "../api/api";
 import { enqueueSnackbar } from "notistack";
 
 export const customBaseQuery = async (args, api, extraOptions) => {
   const rawBaseQuery = fetchBaseQuery({
-    baseUrl: DEV_BASE_URL,
+    baseUrl: PROD_BASE_URL,
     prepareHeaders: (headers) => {
       const token = Cookies.get("adminToken");
       if (token) headers.set("Authorization", `Bearer ${token}`);

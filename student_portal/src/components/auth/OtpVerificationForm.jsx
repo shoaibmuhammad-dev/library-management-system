@@ -202,8 +202,8 @@ const OtpVerificationForm = () => {
         Enter the 5-digit verification code we sent to your email address.
       </p>
 
-      <div className="w-full flex flex-col items-start gap-2 mt-3">
-        <label className="secondary-text">Verification Code</label>
+      <div className="w-full flex flex-col items-start gap-2 mt-1">
+        {/* <label className="secondary-text">Verification Code</label> */}
 
         <div className="flex items-center justify-between gap-3 w-full">
           {formik.values.otp.map((digit, index) => (

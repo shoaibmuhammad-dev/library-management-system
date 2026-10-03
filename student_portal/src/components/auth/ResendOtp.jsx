@@ -24,6 +24,10 @@ const ResendOtp = () => {
 
   const handleResend = async () => {
     const email = Cookies.get("verification-email");
+    if (!email) {
+      enqueueSnackbar("Something went wrong. Try again.", { variant: "error" });
+      return;
+    }
     try {
       const res = await forgotPassword({ email }).unwrap();
       if (res?.success) {
