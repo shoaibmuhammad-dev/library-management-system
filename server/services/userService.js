@@ -130,10 +130,50 @@ const updateUserProfile = async (userId, data, file) => {
   return updatedUser;
 };
 
+const updateUserStatus = async (userId, status) => {
+  if (!userId) {
+    throw new ApiError("User ID is required", 400);
+  }
+
+  if (!status) {
+    throw new ApiError("Status is required", 400);
+  }
+
+  const allowedStatuses = ["accepted", "rejected", "blocked", "suspended"];
+
+  if (!allowedStatuses.includes(status)) {
+    throw new ApiError("Invalid user status", 400);
+  }
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError("User not found", 404);
+  }
+
+  if (user.role !== "student") {
+    throw new ApiError("Only student accounts can be updated", 403);
+  }
+
+  if (user?.status === "deleted") {
+    throw new ApiError(
+      "Deleted accounts can not be blocked or suspended.",
+      400,
+    );
+  }
+
+  user.status = status;
+
+  await user.save();
+
+  return user;
+};
+
 module.exports = {
   getProfile,
   getUsers,
   updateUserRole,
   approveUserProfile,
   updateUserProfile,
+  updateUserStatus,
 };

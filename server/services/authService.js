@@ -83,6 +83,15 @@ const register = async ({
 const login = async ({ email, password, role }) => {
   const user = await User.findOne({ email });
 
+  const restrictedStatuses = ["rejected", "blocked", "suspended", "deleted"];
+
+  if (restrictedStatuses.includes(user.status)) {
+    throw new ApiError(
+      `Your account is ${user.status}. Please contact the library administrator.`,
+      403,
+    );
+  }
+
   if (role !== user.role) {
     throw new ApiError("Invalid email or password.", 400);
   }

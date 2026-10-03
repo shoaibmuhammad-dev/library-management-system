@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import {
   useDeleteUserAccountMutation,
   useGetUsersQuery,
+  useUpdateUserStatusMutation,
 } from "../../services/users/authApi";
 import { formatDate } from "../../utils/formatDate";
 import PageLoader from "../Global/PageLoader";
@@ -23,6 +24,9 @@ const UserList = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [blockUserModal, setBlockUserModal] = useState(false);
   const [confirmationAction, setConfirmationAction] = useState(null);
+
+  const [updateUserStatus, { isLoading: isBlocking }] =
+    useUpdateUserStatusMutation();
 
   const handleOpenConfirmation = (action, selectedUser) => {
     setUser(selectedUser);
@@ -61,32 +65,15 @@ const UserList = () => {
   const users = data?.data;
   const pagination = data?.pagination;
 
-  const deleteUser = async (userId) => {
-    if (!userId) return;
-    setDeletingUser(true);
-    try {
-      await deleteUserAccount({ userId }).unwrap();
-
-      enqueueSnackbar("User account deleted successfully.", {
-        variant: "success",
-      });
-      refetch();
-    } catch (error) {
-      console.log("err while deleting user account. ", error);
-    } finally {
-      setDeletingUser(false);
-    }
-  };
-
   const handleBlockUser = async (userId) => {
     if (!userId) return;
 
     try {
       console.log("Blocking user:", userId);
 
-      // await blockUser({ userId }).unwrap();
+      await updateUserStatus({ userId, status: "blocked" }).unwrap();
 
-      enqueueSnackbar("User blocked successfully.", {
+      enqueueSnackbar("User account has been blocked successfully.", {
         variant: "success",
       });
 
@@ -102,9 +89,9 @@ const UserList = () => {
     try {
       console.log("Suspending user:", userId);
 
-      // await suspendUser({ userId }).unwrap();
+      await updateUserStatus({ userId, status: "suspended" }).unwrap();
 
-      enqueueSnackbar("User suspended successfully.", {
+      enqueueSnackbar("User account has been suspended successfully.", {
         variant: "success",
       });
 

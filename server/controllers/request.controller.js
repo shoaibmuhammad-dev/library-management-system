@@ -42,7 +42,7 @@ exports.acceptRejectRequestBorrowBook = asyncHandler(async (req, res) => {
     status,
   );
 
-  return res
+  res
     .status(200)
     .json({ message: "Status updated successfully!", data: updatedRequest });
 });
@@ -92,7 +92,7 @@ exports.cancelBorrowRequest = asyncHandler(async (req, res) => {
     userId,
   );
 
-  return res.status(200).json({
+  res.status(200).json({
     success: true,
     message: "Borrow request cancelled successfully!",
     data: cancelledRequest,

@@ -4,43 +4,118 @@ import { useRequestBookMutation } from "../../services/bookApi";
 import { enqueueSnackbar } from "notistack";
 import { useState } from "react";
 
+const getLocalDate = () => {
+  const date = new Date();
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
 const RequestModal = ({ bookDetails, isModalOpen, setIsModalOpen }) => {
   const [dates, setDates] = useState({
     startDate: "",
     endDate: "",
   });
-  const today = new Date().toISOString().split("T")[0];
 
   const [requestBook, { isLoading }] = useRequestBookMutation();
+
+  const today = getLocalDate();
 
   const handleDateChange = (e) => {
     const { name, value } = e.target;
 
-    setDates((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setDates((prev) => {
+      const updatedDates = {
+        ...prev,
+        [name]: value,
+      };
+
+      // If start date is moved after the current return date,
+      // clear the return date because it is no longer valid.
+      if (
+        name === "startDate" &&
+        prev.endDate &&
+        value &&
+        prev.endDate < value
+      ) {
+        updatedDates.endDate = "";
+      }
+
+      return updatedDates;
+    });
   };
 
-  const handleBorrowBookRequest = async (bookId) => {
-    if (!dates.startDate || !dates.endDate) {
+  const validateDates = () => {
+    const { startDate, endDate } = dates;
+
+    // Required fields
+    if (!startDate || !endDate) {
       enqueueSnackbar("Please select both start and return dates.", {
         variant: "warning",
       });
-      return;
+
+      return false;
     }
 
-    if (dates.startDate < today) {
+    // Start date cannot be before today
+    if (startDate < today) {
       enqueueSnackbar("Start date cannot be a past date.", {
         variant: "warning",
       });
-      return;
+
+      return false;
     }
 
-    if (dates.endDate < dates.startDate) {
+    // Return date cannot be before start date
+    if (endDate < startDate) {
       enqueueSnackbar("Return date cannot be before the start date.", {
         variant: "warning",
       });
+
+      return false;
+    }
+
+    // Make sure the dates are actually valid Date values
+    const start = new Date(`${startDate}T00:00:00`);
+    const end = new Date(`${endDate}T00:00:00`);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      enqueueSnackbar("Please select valid dates.", {
+        variant: "warning",
+      });
+
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleBorrowBookRequest = async () => {
+    if (isLoading) return;
+
+    const bookId = bookDetails?._id;
+
+    if (!bookId) {
+      enqueueSnackbar("Book information is missing.", {
+        variant: "error",
+      });
+
+      return;
+    }
+
+    // Check availability before submitting
+    if (!bookDetails?.availableBooks || bookDetails.availableBooks <= 0) {
+      enqueueSnackbar("This book is currently unavailable.", {
+        variant: "warning",
+      });
+
+      return;
+    }
+
+    if (!validateDates()) {
       return;
     }
 
@@ -53,11 +128,10 @@ const RequestModal = ({ bookDetails, isModalOpen, setIsModalOpen }) => {
         },
       }).unwrap();
 
-      enqueueSnackbar("Request submitted successfully!", {
+      enqueueSnackbar("Borrow request submitted successfully!", {
         variant: "success",
       });
 
-      // Reset dates
       setDates({
         startDate: "",
         endDate: "",
@@ -65,9 +139,16 @@ const RequestModal = ({ bookDetails, isModalOpen, setIsModalOpen }) => {
 
       setIsModalOpen(false);
     } catch (error) {
-      enqueueSnackbar(error?.data?.message || "Failed to submit request.", {
-        variant: "error",
-      });
+      console.error("Borrow request error:", error);
+
+      enqueueSnackbar(
+        error?.data?.message ||
+          error?.error ||
+          "Failed to submit borrow request. Please try again.",
+        {
+          variant: "error",
+        },
+      );
     }
   };
 
@@ -86,8 +167,13 @@ const RequestModal = ({ bookDetails, isModalOpen, setIsModalOpen }) => {
     <>
       <button
         type="button"
-        disabled={bookDetails?.availableBooks === 0 || isLoading}
-        onClick={() => setIsModalOpen((prev) => !prev)}
+        disabled={
+          !bookDetails?._id ||
+          !bookDetails?.availableBooks ||
+          bookDetails.availableBooks <= 0 ||
+          isLoading
+        }
+        onClick={() => setIsModalOpen(true)}
         className="orangeBg rounded-md px-5 py-3 font-semibold text-black text-sm lg:text-lg mt-3 disabled:opacity-65"
       >
         Borrow Book Request
@@ -104,7 +190,7 @@ const RequestModal = ({ bookDetails, isModalOpen, setIsModalOpen }) => {
           <p className="text-gray-400 max-w-md">
             You are about to submit a request to borrow{" "}
             <span className="text-white font-semibold">
-              "{bookDetails?.bookTitle}"
+              "{bookDetails?.bookTitle || "this book"}"
             </span>
             . Your request will be sent to the library admin for approval.
           </p>
@@ -128,7 +214,6 @@ const RequestModal = ({ bookDetails, isModalOpen, setIsModalOpen }) => {
                 value={dates.startDate}
                 onChange={handleDateChange}
                 min={today}
-                required
                 disabled={isLoading}
                 className="w-full bg-[#090c15] p-3 rounded-md text-sm outline-none text-neutral-300 disabled:opacity-65"
               />
@@ -146,9 +231,8 @@ const RequestModal = ({ bookDetails, isModalOpen, setIsModalOpen }) => {
                 id="endDate"
                 value={dates.endDate}
                 onChange={handleDateChange}
-                min={dates.startDate}
-                required
-                disabled={isLoading}
+                min={dates.startDate || today}
+                disabled={!dates.startDate || isLoading}
                 className="w-full bg-[#090c15] p-3 rounded-md text-sm outline-none text-neutral-300 disabled:opacity-65"
               />
             </div>
@@ -167,7 +251,7 @@ const RequestModal = ({ bookDetails, isModalOpen, setIsModalOpen }) => {
             <button
               type="button"
               disabled={isLoading}
-              onClick={() => handleBorrowBookRequest(bookDetails?._id)}
+              onClick={handleBorrowBookRequest}
               className="orangeBg rounded-md px-7 py-2 font-semibold text-black text-sm lg:text-base disabled:opacity-65"
             >
               {isLoading ? "Submitting..." : "Submit"}

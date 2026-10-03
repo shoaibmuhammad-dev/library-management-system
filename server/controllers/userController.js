@@ -60,6 +60,7 @@ exports.updateUserRole = asyncHandler(async (req, res) => {
 
 exports.deleteUser = asyncHandler(async (req, res) => {
   const userId = req.params.userId;
+
   if (!userId) {
     return res.status(400).json({ message: "User ID is required." });
   }
@@ -69,6 +70,7 @@ exports.deleteUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "User not found." });
   }
   await Users.findByIdAndDelete(userId);
+
   await sendEmail(
     user.email,
     `Account Deleted`,
@@ -110,6 +112,19 @@ exports.updateProfileController = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Profile updated successfully",
+    data: updatedUser,
+  });
+});
+
+exports.updateUserStatus = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { status } = req.body;
+
+  const updatedUser = await userService.updateUserStatus(userId, status);
+
+  return res.status(200).json({
+    success: true,
+    message: `User account ${status} successfully.`,
     data: updatedUser,
   });
 });

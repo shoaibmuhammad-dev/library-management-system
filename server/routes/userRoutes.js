@@ -8,6 +8,7 @@ const {
   approveUserProfile,
   getUser,
   updateProfileController,
+  updateUserStatus,
 } = require("../controllers/userController");
 const protect = require("../middlewares/authMiddleware");
 const roleMiddleware = require("../middlewares/roleMiddleware");
@@ -37,11 +38,19 @@ router.get(`/:userId`, protect, roleMiddleware("admin"), getUser);
 router.delete(`/:userId`, protect, roleMiddleware("admin"), deleteUser);
 
 // approve/reject user account (admin only)
-router.put(
-  `/:userId/status`,
+// router.put(
+//   `/:userId/status`,
+//   protect,
+//   roleMiddleware("admin"),
+//   approveUserProfile,
+// );
+
+// block or suspend student account - admin only
+router.patch(
+  "/:userId/status",
   protect,
   roleMiddleware("admin"),
-  approveUserProfile,
+  updateUserStatus,
 );
 
 module.exports = router;

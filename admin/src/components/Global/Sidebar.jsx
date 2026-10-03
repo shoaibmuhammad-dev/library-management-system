@@ -49,6 +49,16 @@ const Sidebar = () => {
     navigate("/login");
   };
 
+  const isActiveLink = (linkPath) => {
+    if (linkPath === "/") {
+      return path.pathname === "/";
+    }
+
+    return (
+      path.pathname === linkPath || path.pathname.startsWith(`${linkPath}/`)
+    );
+  };
+
   return (
     <div className="py-4 w-full h-full px-5 flex flex-col items-start gap-8 relative">
       <div className="w-full flex items-center gap-1">
@@ -70,7 +80,7 @@ const Sidebar = () => {
             <li
               key={index}
               className={`w-full py-3 rounded-xl px-4 mb-1 hover:bg-[--primary-bg] hover:text-white transition-all duration-200 ${
-                path?.pathname === link?.path
+                isActiveLink(link.path)
                   ? "primary-bg text-white"
                   : " bg-white text-black"
               }`}

@@ -6,7 +6,9 @@ exports.addBook = asyncHandler(async (req, res) => {
   const bookCoverImage = req.files?.bookCoverImage?.[0];
 
   if (!bookCoverImage) {
-    throw new Error("Book cover image is required");
+    return res
+      .status(400)
+      .json({ success: false, message: "Book cover image is required" });
   }
 
   const existingBook = await Books.findOne({
@@ -14,7 +16,10 @@ exports.addBook = asyncHandler(async (req, res) => {
   });
 
   if (existingBook) {
-    throw new Error(`Book with title ${req.body.bookTitle} already exists.`);
+    return res.status(400).json({
+      success: false,
+      message: `Book with title ${req.body.bookTitle} already exists.`,
+    });
   }
 
   const data = await bookService.createBook({
@@ -40,12 +45,12 @@ exports.getBooks = asyncHandler(async (req, res) => {
 // get book by id
 exports.getBook = asyncHandler(async (req, res) => {
   if (!req.params.bookId) {
-    throw new Error(`ID is ${req.params.bookId}`);
+    return res.status(400).json({ success: false, message: `ID is required` });
   }
 
   const book = await bookService.getBook(req.params.bookId);
   if (!book) {
-    throw new Error("Book not found");
+    return res.status(400).json({ success: false, message: `Book not found` });
   }
 
   res.status(200).json({ data: book });

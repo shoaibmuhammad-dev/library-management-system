@@ -65,6 +65,7 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+
     profilePicture: { type: String, required: false, default: null },
 
     resetOtp: { type: String, default: null },
