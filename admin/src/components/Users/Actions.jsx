@@ -34,22 +34,34 @@ const Actions = ({
             View
           </button>
 
-          {/* Block */}
+          {/* Block / Unblock */}
           <button
             type="button"
-            onClick={() => onAction("block", user)}
+            onClick={() => {
+              if (user?.status === "blocked") {
+                onAction("unblock", user);
+              } else {
+                onAction("block", user);
+              }
+            }}
             className="px-4 py-2 hover:bg-gray-100 w-full text-start"
           >
-            Block
+            {user?.status === "blocked" ? "Unblock" : "Block"}
           </button>
 
-          {/* Suspend */}
+          {/* Suspend / Unsuspend */}
           <button
             type="button"
-            onClick={() => onAction("suspend", user)}
+            onClick={() => {
+              if (user?.status === "suspended") {
+                onAction("unsuspend", user);
+              } else {
+                onAction("suspend", user);
+              }
+            }}
             className="px-4 py-2 hover:bg-gray-100 w-full text-start"
           >
-            Suspend
+            {user?.status === "suspended" ? "Unsuspend" : "Suspend"}
           </button>
         </div>
       )}

@@ -4,6 +4,7 @@ import { enqueueSnackbar } from "notistack";
 import { getStatusStyle } from "../../utils/getStatusSatyle";
 import PageLoader from "../Global/PageLoader";
 import { createPortal } from "react-dom";
+import { IoMdArrowDropdown } from "react-icons/io";
 
 const REQUESTS_STATUS = [
   { title: "Pending", value: "pending" },
@@ -66,11 +67,12 @@ const StatusDropdown = ({ defaultValue, requestId, currentStatus }) => {
       <div className="relative inline-block text-left">
         <button
           onClick={() => handleToggleDropdown()}
-          className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
+          className={`px-2.5 py-1 rounded-full text-xs font-medium inline-flex items-center gap-0.5 ${getStatusStyle(
             defaultValue,
           )}`}
         >
-          {formattedStatus === "Borrowed" ? "Accepted" : formattedStatus}
+          {formattedStatus === "Borrowed" ? "Accepted" : formattedStatus}{" "}
+          <IoMdArrowDropdown size={18} />
         </button>
 
         {open && (

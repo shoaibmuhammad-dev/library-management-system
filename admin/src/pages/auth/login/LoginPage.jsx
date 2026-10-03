@@ -7,7 +7,7 @@ const LoginPage = () => {
         <img
           src="/login-page-mockup.png"
           alt="login-page-mockup"
-          className="w-full min-h-screen max-h-[115vh] object-cover"
+          className="w-full min-h-screen max-h-[100vh] object-cover"
         />
       </div>
       <div className="w-full h-full flex items-center justify-center px-5 col-span-2 lg:col-span-1">

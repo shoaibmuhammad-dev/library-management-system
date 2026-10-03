@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
-  useDeleteUserAccountMutation,
   useGetUsersQuery,
   useUpdateUserStatusMutation,
 } from "../../services/users/authApi";
@@ -11,19 +10,18 @@ import ErrorPage from "../Global/ErrorPage";
 import UserCard from "./UserCard";
 import { enqueueSnackbar } from "notistack";
 import Pagination from "../Global/Pagination";
-import { HiDotsVertical } from "react-icons/hi";
 import Actions from "./Actions";
 import ConfirmationModal from "./ConfirmationModal";
+import { getStatusStyle } from "../../utils/getStatusSatyle";
 
 const UserList = () => {
   const [searchParams] = useSearchParams();
   const searchTerm = searchParams.get("search") || "";
-  const [deleteUserAccount] = useDeleteUserAccountMutation();
-  const [deletingUser, setDeletingUser] = useState(false);
   const page = Number(searchParams.get("page") || 1);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [blockUserModal, setBlockUserModal] = useState(false);
   const [confirmationAction, setConfirmationAction] = useState(null);
+  const [showUserCard, setShowUSerCard] = useState(false);
+  const [user, setUser] = useState(null);
 
   const [updateUserStatus, { isLoading: isBlocking }] =
     useUpdateUserStatusMutation();
@@ -46,7 +44,7 @@ const UserList = () => {
   const { data, isError, isLoading, refetch } = useGetUsersQuery(
     {
       search: searchTerm,
-      status: "accepted",
+      status: "",
       limit: 12,
       page,
     },
@@ -55,8 +53,6 @@ const UserList = () => {
       refetchOnReconnect: true,
     },
   );
-  const [showUserCard, setShowUSerCard] = useState(false);
-  const [user, setUser] = useState(null);
 
   if (isLoading) return <PageLoader />;
 
@@ -65,39 +61,35 @@ const UserList = () => {
   const users = data?.data;
   const pagination = data?.pagination;
 
-  const handleBlockUser = async (userId) => {
-    if (!userId) return;
+  const handleUpdateUserStatus = async (userId, status) => {
+    if (!userId || isBlocking) return;
 
     try {
-      console.log("Blocking user:", userId);
+      await updateUserStatus({
+        userId,
+        status,
+      }).unwrap();
 
-      await updateUserStatus({ userId, status: "blocked" }).unwrap();
+      const messages = {
+        blocked: "User account has been blocked successfully.",
+        suspended: "User account has been suspended successfully.",
+        accepted: "User account has been activated successfully.",
+      };
 
-      enqueueSnackbar("User account has been blocked successfully.", {
+      enqueueSnackbar(messages[status] || "User status updated successfully.", {
         variant: "success",
       });
 
       handleCloseConfirmation();
     } catch (error) {
-      console.error("Error blocking user:", error);
-    }
-  };
+      console.error("Error updating user status:", error);
 
-  const handleSuspendUser = async (userId) => {
-    if (!userId) return;
-
-    try {
-      console.log("Suspending user:", userId);
-
-      await updateUserStatus({ userId, status: "suspended" }).unwrap();
-
-      enqueueSnackbar("User account has been suspended successfully.", {
-        variant: "success",
-      });
-
-      handleCloseConfirmation();
-    } catch (error) {
-      console.error("Error suspending user:", error);
+      enqueueSnackbar(
+        error?.data?.message || error?.error || "Failed to update user status.",
+        {
+          variant: "error",
+        },
+      );
     }
   };
 
@@ -130,60 +122,81 @@ const UserList = () => {
                   University ID
                 </th>
                 <th scope="col" className="px-6 py-4">
+                  Status
+                </th>
+                <th scope="col" className="px-6 py-4">
                   Action
                 </th>
               </tr>
             </thead>
             <tbody>
               {users &&
-                users?.map((user, index) => (
-                  <tr className="bg-white border-b border-gray-200" key={index}>
-                    <th
-                      scope="row"
-                      className="px-6 py-4 font-medium whitespace-nowrap flex items-center gap-2"
+                users?.map((user, index) => {
+                  const statusStyle = getStatusStyle(user?.status);
+                  return (
+                    <tr
+                      className="bg-white border-b border-gray-200"
+                      key={index}
                     >
-                      <img
-                        src={
-                          user?.profilePicture
-                            ? user?.profilePicture
-                            : "/user-profile-picture-placeholder.png"
-                        }
-                        alt="profile01"
-                        className={`w-[35px] h-[35px] rounded-full object-cover`}
-                      />
-                      <div className="flex flex-col items-start gap-1">
-                        <span className="leading-none">
-                          {user?.firstName + " " + user?.lastName}
+                      <th
+                        scope="row"
+                        className="px-6 py-4 font-medium whitespace-nowrap flex items-center gap-2"
+                      >
+                        <img
+                          src={
+                            user?.profilePicture
+                              ? user?.profilePicture
+                              : "/user-profile-picture-placeholder.png"
+                          }
+                          alt="profile01"
+                          className={`w-[35px] h-[35px] rounded-full object-cover`}
+                        />
+                        <div className="flex flex-col items-start gap-1">
+                          <span className="leading-none">
+                            {user?.firstName + " " + user?.lastName}
+                          </span>
+                          <span className="leading-none secondary-text font-normal">
+                            {user?.email}
+                          </span>
+                        </div>
+                      </th>
+                      <td className="px-6 py-4">
+                        <span className="whitespace-nowrap">
+                          {formatDate(user?.createdAt)}
                         </span>
-                        <span className="leading-none secondary-text font-normal">
-                          {user?.email}
-                        </span>
-                      </div>
-                    </th>
-                    <td className="px-6 py-4">
-                      <span className="whitespace-nowrap">
-                        {formatDate(user?.createdAt)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {user?.role.charAt(0).toUpperCase() + user?.role.slice(1)}
-                    </td>
-                    <td className="px-6 py-4">{user?.booksBorrowedCount}</td>
-                    <td className="px-6 py-4">{user?.idNumber}</td>
+                      </td>
+                      <td className="px-6 py-4">
+                        {user?.role.charAt(0).toUpperCase() +
+                          user?.role.slice(1)}
+                      </td>
 
-                    <td className="px-6 py-4 text-center relative">
-                      <Actions
-                        openDropdown={openDropdown}
-                        setOpenDropdown={setOpenDropdown}
-                        user={user}
-                        setUser={setUser}
-                        setShowUSerCard={setShowUSerCard}
-                        handleToggleDropdown={handleToggleDropdown}
-                        onAction={handleOpenConfirmation}
-                      />
-                    </td>
-                  </tr>
-                ))}
+                      <td className="px-6 py-4">{user?.booksBorrowedCount}</td>
+
+                      <td className="px-6 py-4">{user?.idNumber}</td>
+
+                      <td className={`px-6 py-4`}>
+                        <span
+                          className={`${statusStyle} px-3 py-1.5 font-medium text-xs rounded-full`}
+                        >
+                          {user?.status.slice(0, 1).toUpperCase() +
+                            user?.status.slice(1)}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4 text-center relative">
+                        <Actions
+                          openDropdown={openDropdown}
+                          setOpenDropdown={setOpenDropdown}
+                          user={user}
+                          setUser={setUser}
+                          setShowUSerCard={setShowUSerCard}
+                          handleToggleDropdown={handleToggleDropdown}
+                          onAction={handleOpenConfirmation}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>
@@ -221,30 +234,53 @@ const UserList = () => {
         isOpen={Boolean(confirmationAction)}
         onClose={handleCloseConfirmation}
         onConfirm={() => {
-          if (confirmationAction === "block") {
-            handleBlockUser(user?._id);
-          }
+          const statusMap = {
+            block: "blocked",
+            unblock: "accepted",
+            suspend: "suspended",
+            unsuspend: "accepted",
+          };
 
-          if (confirmationAction === "suspend") {
-            handleSuspendUser(user?._id);
+          const newStatus = statusMap[confirmationAction];
+
+          if (newStatus) {
+            handleUpdateUserStatus(user?._id, newStatus);
           }
         }}
-        isLoading={false}
-        title={confirmationAction === "block" ? "Block User" : "Suspend User"}
+        isLoading={isBlocking}
+        title={
+          {
+            block: "Block User",
+            unblock: "Unblock User",
+            suspend: "Suspend User",
+            unsuspend: "Unsuspend User",
+          }[confirmationAction]
+        }
         description={
-          confirmationAction === "block"
-            ? `Are you sure you want to block ${user?.firstName} ${user?.lastName}?`
-            : `Are you sure you want to suspend ${user?.firstName} ${user?.lastName}?`
+          {
+            block: `Are you sure you want to block ${user?.firstName} ${user?.lastName}?`,
+            unblock: `Are you sure you want to unblock ${user?.firstName} ${user?.lastName}?`,
+            suspend: `Are you sure you want to suspend ${user?.firstName} ${user?.lastName}?`,
+            unsuspend: `Are you sure you want to unsuspend ${user?.firstName} ${user?.lastName}?`,
+          }[confirmationAction]
         }
         confirmText={
-          confirmationAction === "block" ? "Yes, Block" : "Yes, Suspend"
+          {
+            block: "Yes, Block",
+            unblock: "Yes, Unblock",
+            suspend: "Yes, Suspend",
+            unsuspend: "Yes, Unsuspend",
+          }[confirmationAction]
         }
         loadingText={
-          confirmationAction === "block" ? "Blocking..." : "Suspending..."
+          {
+            block: "Blocking...",
+            unblock: "Unblocking...",
+            suspend: "Suspending...",
+            unsuspend: "Unsuspending...",
+          }[confirmationAction]
         }
       />
-
-      {/* {deletingUser && <RequestLoader />} */}
     </div>
   );
 };
